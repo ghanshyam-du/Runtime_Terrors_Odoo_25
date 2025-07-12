@@ -7,10 +7,10 @@ import Link from "next/link";
 import { fetchPublicUsers } from "@/services/userService";
 import Image from "next/image";
 import SwapRequestDialog from "@/components/SwapRequestDialog";
+import { createSwapRequest } from "@/services/swapService";
 
 export default function Browse() {
   const { user } = useAuth();
-  const { createSwapRequest } = useSwap();
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -64,17 +64,23 @@ export default function Browse() {
     setFilteredUsers(filtered);
   }, [searchTerm, selectedAvailability, users]);
 
-  const handleSwapRequest = (swapData) => {
+  const handleSwapRequest = async (swapData) => {
     if (!user) {
       alert("Please login to request a swap");
       return;
     }
 
-    createSwapRequest(swapData);
-    setSuccessMessage(`Swap request sent to ${swapData.targetName}!`);
-    setShowSwapModal(false);
-    setSelectedUser(null);
-    setTimeout(() => setSuccessMessage(""), 3000);
+    try {
+      await createSwapRequest(swapData);
+      setSuccessMessage(`✅ Swap request sent to ${swapData.targetName}!`);
+    } catch (err) {
+      console.error("Swap request failed:", err);
+      setSuccessMessage(`❌ Failed to send request: ${err.message}`);
+    } finally {
+      setShowSwapModal(false);
+      setSelectedUser(null);
+      setTimeout(() => setSuccessMessage(""), 4000);
+    }
   };
 
   const openSwapModal = (targetUser) => {

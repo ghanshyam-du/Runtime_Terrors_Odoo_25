@@ -1,12 +1,10 @@
-import pkg from "pg";
-
-const { Pool } = pkg;
-
-import dotenv from "dotenv";
+import { Sequelize } from 'sequelize';
+import dotenv from 'dotenv';
 dotenv.config();
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+  dialect: 'postgres',
+  logging: false, // Set to true for SQL debugging
 });
 
-export default pool;
+export default sequelize;

@@ -21,3 +21,10 @@ export const fetchPublicUsers = async () => {
     throw error;
   }
 };
+
+export const fetchUserById = async (id) => {
+  const res = await axios.get(
+    `${process.env.NEXT_PUBLIC_API_URL}/users/${id}`
+  );
+  return res.data;
+};

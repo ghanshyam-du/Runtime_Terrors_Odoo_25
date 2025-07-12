@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSwap } from "@/contexts/SwapContext";
+import Link from "next/link";
 import { fetchPublicUsers } from "@/services/userService";
 import Image from "next/image";
+import SwapRequestDialog from "@/components/SwapRequestDialog";
 
 export default function Browse() {
   const { user } = useAuth();
@@ -14,6 +16,8 @@ export default function Browse() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAvailability, setSelectedAvailability] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [showSwapModal, setShowSwapModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -60,23 +64,22 @@ export default function Browse() {
     setFilteredUsers(filtered);
   }, [searchTerm, selectedAvailability, users]);
 
-  const handleSwapRequest = (targetUser) => {
+  const handleSwapRequest = (swapData) => {
     if (!user) {
       alert("Please login to request a swap");
       return;
     }
 
-    const swapData = {
-      requesterId: user.id,
-      requesterName: user.name,
-      targetId: targetUser.id,
-      targetName: targetUser.name,
-      message: `Hi ${targetUser.name}, I'd like to exchange skills with you!`,
-    };
-
     createSwapRequest(swapData);
-    setSuccessMessage(`Swap request sent to ${targetUser.name}!`);
+    setSuccessMessage(`Swap request sent to ${swapData.targetName}!`);
+    setShowSwapModal(false);
+    setSelectedUser(null);
     setTimeout(() => setSuccessMessage(""), 3000);
+  };
+
+  const openSwapModal = (targetUser) => {
+    setSelectedUser(targetUser);
+    setShowSwapModal(true);
   };
 
   const availabilityOptions = [
@@ -169,9 +172,10 @@ export default function Browse() {
             </div>
           ) : (
             filteredUsers.map((targetUser) => (
-              <div
+              <Link
                 key={targetUser.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                href={`/user/${targetUser.id}`}
+                className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
               >
                 <div className="p-6">
                   <div className="flex items-center mb-4">
@@ -274,17 +278,34 @@ export default function Browse() {
                     )}
 
                   <button
-                    onClick={() => handleSwapRequest(targetUser)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openSwapModal(targetUser);
+                    }}
                     disabled={!user}
                     className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-2 px-4 rounded-lg font-medium transition-colors"
                   >
                     {user ? "Request Swap" : "Login to Request"}
                   </button>
                 </div>
-              </div>
+              </Link>
             ))
           )}
         </div>
+
+        {/* Swap Request Dialog */}
+        {selectedUser && (
+          <SwapRequestDialog
+            isOpen={showSwapModal}
+            onClose={() => {
+              setShowSwapModal(false);
+              setSelectedUser(null);
+            }}
+            profileUser={selectedUser}
+            currentUser={user}
+            onSendRequest={handleSwapRequest}
+          />
+        )}
       </div>
     </div>
   );

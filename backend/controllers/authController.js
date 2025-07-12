@@ -2,7 +2,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
-import cloudinary from '../configs/cloudinary.js';
+import cloudinary from "../configs/cloudinary.js";
 
 export const signup = async (req, res) => {
   const { name, email, password, location } = req.body;
@@ -57,15 +57,12 @@ export const login = async (req, res) => {
   }
 };
 
-
-
-
 export const updateProfile = async (req, res) => {
   const userId = req.user.id;
 
   try {
     const user = await User.findByPk(userId);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user) return res.status(404).json({ error: "User not found" });
 
     const {
       name,
@@ -80,7 +77,7 @@ export const updateProfile = async (req, res) => {
     if (name !== undefined) user.name = name;
     if (location !== undefined) user.location = location;
     if (profilePublic !== undefined) {
-      user.visibility = profilePublic === 'true' || profilePublic === true;
+      user.visibility = profilePublic === "true" || profilePublic === true;
     }
 
     // ✅ Handle arrays from FormData (multi-fields or single strings)
@@ -107,8 +104,8 @@ export const updateProfile = async (req, res) => {
       const result = await new Promise((resolve, reject) => {
         const upload = cloudinary.uploader.upload_stream(
           {
-            folder: 'skill_swap_profile_pics',
-            transformation: [{ width: 300, height: 300, crop: 'limit' }],
+            folder: "skill_swap_profile_pics",
+            transformation: [{ width: 300, height: 300, crop: "limit" }],
           },
           (error, result) => {
             if (error) reject(error);
@@ -125,7 +122,7 @@ export const updateProfile = async (req, res) => {
 
     // ✅ Match structure of login/signup responses
     return res.json({
-      message: 'Profile updated',
+      message: "Profile updated",
       user: {
         id: user.id,
         email: user.email,
@@ -139,7 +136,9 @@ export const updateProfile = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error('❌ updateProfile error:', err);
-    return res.status(500).json({ error: 'Server error during profile update' });
+    console.error("❌ updateProfile error:", err);
+    return res
+      .status(500)
+      .json({ error: "Server error during profile update" });
   }
 };

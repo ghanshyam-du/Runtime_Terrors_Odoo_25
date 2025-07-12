@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react'; // Added useRef
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
@@ -26,6 +26,9 @@ function ProfileContent() {
   });
   const [newSkillOffered, setNewSkillOffered] = useState('');
   const [newSkillWanted, setNewSkillWanted] = useState('');
+  const [profilePicture, setProfilePicture] = useState(null); // Added for profile picture
+  const [profilePictureUrl, setProfilePictureUrl] = useState(''); // Added for preview
+  const fileInputRef = useRef(null); // Added ref for file input
 
   useEffect(() => {
     if (user) {
@@ -38,6 +41,10 @@ function ProfileContent() {
         skillsWanted: user.skillsWanted || [],
         availability: user.availability || []
       });
+      // Set initial profile picture if available
+      if (user.profilePicture) {
+        setProfilePictureUrl(user.profilePicture);
+      }
     }
   }, [user]);
 
@@ -47,6 +54,27 @@ function ProfileContent() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+  };
+
+  // Handle profile picture selection
+  const handleProfilePictureChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfilePicture(file);
+      // Create a preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePictureUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Trigger file input click
+  const triggerFileInput = () => {
+    if (isEditing) {
+      fileInputRef.current.click();
+    }
   };
 
   const addSkillOffered = () => {
@@ -92,8 +120,22 @@ function ProfileContent() {
     }));
   };
 
-  const handleSave = () => {
-    updateProfile(formData);
+  const handleSave = async () => {
+    // Create FormData to handle file upload
+    const formDataToSend = new FormData();
+    formDataToSend.append('name', formData.name);
+    formDataToSend.append('email', formData.email);
+    formDataToSend.append('location', formData.location);
+    formDataToSend.append('profilePublic', formData.profilePublic);
+    formData.skillsOffered.forEach(skill => formDataToSend.append('skillsOffered', skill));
+    formData.skillsWanted.forEach(skill => formDataToSend.append('skillsWanted', skill));
+    formData.availability.forEach(avail => formDataToSend.append('availability', avail));
+    
+    if (profilePicture) {
+      formDataToSend.append('profilePicture', profilePicture);
+    }
+
+    await updateProfile(formDataToSend);
     setIsEditing(false);
   };
 
@@ -107,11 +149,29 @@ function ProfileContent() {
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center">
-                  <span className="text-2xl font-bold text-blue-600">
-                    {user?.name?.charAt(0).toUpperCase()}
-                  </span>
+                <div 
+                  className="w-20 h-20 bg-white rounded-full flex items-center justify-center overflow-hidden cursor-pointer"
+                  onClick={triggerFileInput}
+                >
+                  {profilePictureUrl ? (
+                    <img 
+                      src={profilePictureUrl} 
+                      alt="Profile" 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-2xl font-bold text-blue-600">
+                      {user?.name?.charAt(0).toUpperCase()}
+                    </span>
+                  )}
                 </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleProfilePictureChange}
+                  accept="image/*"
+                  className="hidden"
+                />
                 <div className="text-white">
                   <h1 className="text-2xl font-bold">{user?.name}</h1>
                   <p className="opacity-90">{user?.email}</p>
@@ -129,6 +189,7 @@ function ProfileContent() {
             </div>
           </div>
 
+          {/* Rest of your component remains the same */}
           <div className="p-6 space-y-8">
             {/* Basic Information */}
             <section>

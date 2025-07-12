@@ -37,6 +37,7 @@ export function AuthProvider({ children }) {
         // Store in localStorage
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
+        console.log(user);
 
         // Set default axios header
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -79,19 +80,20 @@ export function AuthProvider({ children }) {
   const updateProfile = async (formData) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("/api/update_profile", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData, // Don't set Content-Type header, let the browser set it with boundary
-      });
 
-      if (!response.ok) {
-        throw new Error("Profile update failed");
-      }
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/update_profile`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            // 👇 Axios will set Content-Type automatically when FormData is passed
+          },
+        }
+      );
 
-      const data = await response.json();
+      const data = response.data;
+
       // Update local storage and state with the new user data
       localStorage.setItem("user", JSON.stringify(data.user));
       setUser(data.user);

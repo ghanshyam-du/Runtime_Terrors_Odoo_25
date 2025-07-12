@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react'; // Added useRef
-import { useAuth } from '@/contexts/AuthContext';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import { useState, useEffect, useRef } from "react"; // Added useRef
+import { useAuth } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function Profile() {
   return (
@@ -16,43 +16,43 @@ function ProfileContent() {
   const { user, updateProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    location: '',
+    name: "",
+    email: "",
+    location: "",
     profilePublic: true,
     skillsOffered: [],
     skillsWanted: [],
-    availability: []
+    availability: [],
   });
-  const [newSkillOffered, setNewSkillOffered] = useState('');
-  const [newSkillWanted, setNewSkillWanted] = useState('');
+  const [newSkillOffered, setNewSkillOffered] = useState("");
+  const [newSkillWanted, setNewSkillWanted] = useState("");
   const [profilePicture, setProfilePicture] = useState(null); // Added for profile picture
-  const [profilePictureUrl, setProfilePictureUrl] = useState(''); // Added for preview
+  const [profilePictureUrl, setProfilePictureUrl] = useState(""); // Added for preview
   const fileInputRef = useRef(null); // Added ref for file input
 
   useEffect(() => {
     if (user) {
       setFormData({
-        name: user.name || '',
-        email: user.email || '',
-        location: user.location || '',
-        profilePublic: user.profilePublic !== false,
-        skillsOffered: user.skillsOffered || [],
-        skillsWanted: user.skillsWanted || [],
-        availability: user.availability || []
+        name: user.name || "",
+        email: user.email || "",
+        location: user.location || "",
+        profilePublic: user.visibility !== false,
+        skillsOffered: user.skills_offered || [],
+        skillsWanted: user.skills_wanted || [],
+        availability: user.availability || [],
       });
       // Set initial profile picture if available
-      if (user.profilePicture) {
-        setProfilePictureUrl(user.profilePicture);
+      if (user.profile_photo_url) {
+        setProfilePictureUrl(user.profile_photo_url);
       }
     }
   }, [user]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -78,83 +78,89 @@ function ProfileContent() {
   };
 
   const addSkillOffered = () => {
-    if (newSkillOffered.trim() && !formData.skillsOffered.includes(newSkillOffered.trim())) {
-      setFormData(prev => ({
+    if (
+      newSkillOffered.trim() &&
+      !formData.skillsOffered.includes(newSkillOffered.trim())
+    ) {
+      setFormData((prev) => ({
         ...prev,
-        skillsOffered: [...prev.skillsOffered, newSkillOffered.trim()]
+        skillsOffered: [...prev.skillsOffered, newSkillOffered.trim()],
       }));
-      setNewSkillOffered('');
+      setNewSkillOffered("");
     }
   };
 
   const removeSkillOffered = (skill) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      skillsOffered: prev.skillsOffered.filter(s => s !== skill)
+      skillsOffered: prev.skillsOffered.filter((s) => s !== skill),
     }));
   };
 
   const addSkillWanted = () => {
-    if (newSkillWanted.trim() && !formData.skillsWanted.includes(newSkillWanted.trim())) {
-      setFormData(prev => ({
+    if (
+      newSkillWanted.trim() &&
+      !formData.skillsWanted.includes(newSkillWanted.trim())
+    ) {
+      setFormData((prev) => ({
         ...prev,
-        skillsWanted: [...prev.skillsWanted, newSkillWanted.trim()]
+        skillsWanted: [...prev.skillsWanted, newSkillWanted.trim()],
       }));
-      setNewSkillWanted('');
+      setNewSkillWanted("");
     }
   };
 
   const removeSkillWanted = (skill) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      skillsWanted: prev.skillsWanted.filter(s => s !== skill)
+      skillsWanted: prev.skillsWanted.filter((s) => s !== skill),
     }));
   };
 
   const handleAvailabilityChange = (option) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       availability: prev.availability.includes(option)
-        ? prev.availability.filter(a => a !== option)
-        : [...prev.availability, option]
+        ? prev.availability.filter((a) => a !== option)
+        : [...prev.availability, option],
     }));
   };
 
-   const handleSave = async () => {
+  const handleSave = async () => {
     const formDataToSend = new FormData();
-    
-    // Append all fields to FormData
-    formDataToSend.append('name', formData.name);
-    formDataToSend.append('email', formData.email);
-    formDataToSend.append('location', formData.location);
-    formDataToSend.append('profilePublic', formData.profilePublic);
-    
-    formData.skillsOffered.forEach(skill => {
-      formDataToSend.append('skillsOffered', skill);
+
+    formDataToSend.append("name", formData.name);
+    formDataToSend.append("email", formData.email);
+    formDataToSend.append("location", formData.location);
+    formDataToSend.append("profilePublic", formData.profilePublic);
+
+    formData.skillsOffered.forEach((skill) => {
+      formDataToSend.append("skillsOffered", skill);
     });
-    
-    formData.skillsWanted.forEach(skill => {
-      formDataToSend.append('skillsWanted', skill);
+
+    formData.skillsWanted.forEach((skill) => {
+      formDataToSend.append("skillsWanted", skill);
     });
-    
-    formData.availability.forEach(avail => {
-      formDataToSend.append('availability', avail);
+
+    formData.availability.forEach((avail) => {
+      formDataToSend.append("availability", avail);
     });
-    
+
     if (profilePicture) {
-      formDataToSend.append('profilePicture', profilePicture);
+      formDataToSend.append("profilePicture", profilePicture); // 🖼️
     }
 
-    try {
-      await updateProfile(formDataToSend);
-      setIsEditing(false);
-    } catch (error) {
-      console.error('Error updating profile:', error);
-    }
+    await updateProfile(formDataToSend); // 🔁 This will send FormData
+    setIsEditing(false);
   };
 
-
-  const availabilityOptions = ['Weekdays', 'Weekends', 'Evenings', 'Mornings', 'Afternoons'];
+  const availabilityOptions = [
+    "Weekdays",
+    "Weekends",
+    "Evenings",
+    "Mornings",
+    "Afternoons",
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -164,14 +170,14 @@ function ProfileContent() {
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div 
+                <div
                   className="w-20 h-20 bg-white rounded-full flex items-center justify-center overflow-hidden cursor-pointer"
                   onClick={triggerFileInput}
                 >
                   {profilePictureUrl ? (
-                    <img 
-                      src={profilePictureUrl} 
-                      alt="Profile" 
+                    <img
+                      src={profilePictureUrl}
+                      alt="Profile"
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -196,10 +202,10 @@ function ProfileContent() {
                 </div>
               </div>
               <button
-                onClick={() => isEditing ? handleSave() : setIsEditing(true)}
+                onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
                 className="bg-white text-blue-600 px-6 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors"
               >
-                {isEditing ? 'Save Profile' : 'Edit Profile'}
+                {isEditing ? "Save Profile" : "Edit Profile"}
               </button>
             </div>
           </div>
@@ -208,10 +214,14 @@ function ProfileContent() {
           <div className="p-6 space-y-8">
             {/* Basic Information */}
             <section>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Basic Information</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                Basic Information
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Name
+                  </label>
                   {isEditing ? (
                     <input
                       type="text"
@@ -225,7 +235,9 @@ function ProfileContent() {
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Location
+                  </label>
                   {isEditing ? (
                     <input
                       type="text"
@@ -236,7 +248,9 @@ function ProfileContent() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                     />
                   ) : (
-                    <p className="text-gray-900">{formData.location || 'Not specified'}</p>
+                    <p className="text-gray-900">
+                      {formData.location || "Not specified"}
+                    </p>
                   )}
                 </div>
               </div>
@@ -251,14 +265,18 @@ function ProfileContent() {
                     disabled={!isEditing}
                     className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
                   />
-                  <span className="ml-2 text-sm text-gray-700">Make my profile public</span>
+                  <span className="ml-2 text-sm text-gray-700">
+                    Make my profile public
+                  </span>
                 </label>
               </div>
             </section>
 
             {/* Skills Offered */}
             <section>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Skills I Can Offer</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                Skills I Can Offer
+              </h2>
               <div className="flex flex-wrap gap-2 mb-4">
                 {formData.skillsOffered.map((skill) => (
                   <span
@@ -285,7 +303,7 @@ function ProfileContent() {
                     onChange={(e) => setNewSkillOffered(e.target.value)}
                     placeholder="Add a skill you can teach"
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    onKeyPress={(e) => e.key === 'Enter' && addSkillOffered()}
+                    onKeyPress={(e) => e.key === "Enter" && addSkillOffered()}
                   />
                   <button
                     onClick={addSkillOffered}
@@ -299,7 +317,9 @@ function ProfileContent() {
 
             {/* Skills Wanted */}
             <section>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Skills I Want to Learn</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                Skills I Want to Learn
+              </h2>
               <div className="flex flex-wrap gap-2 mb-4">
                 {formData.skillsWanted.map((skill) => (
                   <span
@@ -326,7 +346,7 @@ function ProfileContent() {
                     onChange={(e) => setNewSkillWanted(e.target.value)}
                     placeholder="Add a skill you want to learn"
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    onKeyPress={(e) => e.key === 'Enter' && addSkillWanted()}
+                    onKeyPress={(e) => e.key === "Enter" && addSkillWanted()}
                   />
                   <button
                     onClick={addSkillWanted}
@@ -340,7 +360,9 @@ function ProfileContent() {
 
             {/* Availability */}
             <section>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Availability</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                Availability
+              </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {availabilityOptions.map((option) => (
                   <label key={option} className="flex items-center">

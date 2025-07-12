@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Users2 , UploadCloud, Clock } from "lucide-react";
+import { Users2, UploadCloud, Clock } from "lucide-react";
 
 export default function Home() {
   return (
@@ -34,11 +34,13 @@ export default function Home() {
 
           {/* Hero Image Placeholder */}
           <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-12 mb-16">
-            
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-800 mb-4">Empower Your Growth</h2>
+              <h2 className="text-3xl font-bold text-gray-800 mb-4">
+                Empower Your Growth
+              </h2>
               <p className="text-gray-700 text-lg max-w-2xl mx-auto">
-                Discover, share, and grow with a community that values skill exchange and lifelong learning.
+                Discover, share, and grow with a community that values skill
+                exchange and lifelong learning.
               </p>
             </div>
 
@@ -48,9 +50,12 @@ export default function Home() {
                 <div className="w-32 h-32 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <Users2 className="text-white w-16 h-16" />
                 </div>
-                <h4 className="text-lg font-semibold text-gray-800 mb-2">Connect & Learn</h4>
+                <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                  Connect & Learn
+                </h4>
                 <p className="text-gray-600 text-sm max-w-xs mx-auto">
-                  Match with skilled individuals ready to share knowledge and collaborate.
+                  Match with skilled individuals ready to share knowledge and
+                  collaborate.
                 </p>
               </div>
 
@@ -59,9 +64,12 @@ export default function Home() {
                 <div className="w-32 h-32 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <UploadCloud className="text-white w-16 h-16" />
                 </div>
-                <h4 className="text-lg font-semibold text-gray-800 mb-2">Share Your Expertise</h4>
+                <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                  Share Your Expertise
+                </h4>
                 <p className="text-gray-600 text-sm max-w-xs mx-auto">
-                  Offer your unique talents and help others grow while strengthening your own skills.
+                  Offer your unique talents and help others grow while
+                  strengthening your own skills.
                 </p>
               </div>
 
@@ -70,14 +78,16 @@ export default function Home() {
                 <div className="w-32 h-32 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <Clock className="text-white w-16 h-16" />
                 </div>
-                <h4 className="text-lg font-semibold text-gray-800 mb-2">Flexible Availability</h4>
+                <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                  Flexible Availability
+                </h4>
                 <p className="text-gray-600 text-sm max-w-xs mx-auto">
-                  Learn and teach on your schedule — mornings, weekends, or whenever you're free.
+                  Learn and teach on your schedule — mornings, weekends, or
+                  whenever you're free.
                 </p>
               </div>
             </div>
           </div>
-
         </div>
       </section>
 

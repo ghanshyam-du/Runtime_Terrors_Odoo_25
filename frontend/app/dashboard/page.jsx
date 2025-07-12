@@ -24,22 +24,22 @@ function DashboardContent() {
   const [activeTab, setActiveTab] = useState("received");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const loadSwaps = async () => {
-      setLoading(true);
-      try {
-        const data = await getSwapRequestsForUser(token);
-        console.log(data);
-        setSwaps(data.requests || []);
-      } catch (error) {
-        console.error("Failed to load swaps:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (token) {
-      loadSwaps();
+  // ⬇️ Move loadSwaps here
+  const loadSwaps = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const data = await getSwapRequestsForUser(token);
+      setSwaps(data.requests || []);
+    } catch (error) {
+      console.error("Failed to load swaps:", error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    loadSwaps();
 
     const savedUsers = JSON.parse(localStorage.getItem("users") || "[]");
     setUsers(savedUsers);
@@ -47,8 +47,9 @@ function DashboardContent() {
 
   const handleStatusChange = async (swapId, status) => {
     try {
+      const token = localStorage.getItem("token"); // instead of relying on useAuth()
       await apiUpdateSwapStatus(swapId, status, token);
-      await loadSwaps(); // Refresh after update
+      await loadSwaps();
     } catch (error) {
       console.error(`Failed to ${status} swap:`, error);
     }

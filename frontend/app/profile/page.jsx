@@ -120,24 +120,39 @@ function ProfileContent() {
     }));
   };
 
-  const handleSave = async () => {
-    // Create FormData to handle file upload
+   const handleSave = async () => {
     const formDataToSend = new FormData();
+    
+    // Append all fields to FormData
     formDataToSend.append('name', formData.name);
     formDataToSend.append('email', formData.email);
     formDataToSend.append('location', formData.location);
     formDataToSend.append('profilePublic', formData.profilePublic);
-    formData.skillsOffered.forEach(skill => formDataToSend.append('skillsOffered', skill));
-    formData.skillsWanted.forEach(skill => formDataToSend.append('skillsWanted', skill));
-    formData.availability.forEach(avail => formDataToSend.append('availability', avail));
+    
+    formData.skillsOffered.forEach(skill => {
+      formDataToSend.append('skillsOffered', skill);
+    });
+    
+    formData.skillsWanted.forEach(skill => {
+      formDataToSend.append('skillsWanted', skill);
+    });
+    
+    formData.availability.forEach(avail => {
+      formDataToSend.append('availability', avail);
+    });
     
     if (profilePicture) {
       formDataToSend.append('profilePicture', profilePicture);
     }
 
-    await updateProfile(formDataToSend);
-    setIsEditing(false);
+    try {
+      await updateProfile(formDataToSend);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
   };
+
 
   const availabilityOptions = ['Weekdays', 'Weekends', 'Evenings', 'Mornings', 'Afternoons'];
 

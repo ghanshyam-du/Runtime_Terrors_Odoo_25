@@ -76,15 +76,30 @@ export function AuthProvider({ children }) {
     delete axios.defaults.headers.common["Authorization"];
   };
 
-  const updateProfile = (updatedData) => {
-    const storedUser = localStorage.getItem("user");
-    if (!storedUser) return;
+  const updateProfile = async (formData) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch("/api/update_profile", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData, // Don't set Content-Type header, let the browser set it with boundary
+      });
 
-    const currentUser = JSON.parse(storedUser);
-    const updatedUser = { ...currentUser, ...updatedData };
+      if (!response.ok) {
+        throw new Error("Profile update failed");
+      }
 
-    setUser(updatedUser);
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+      const data = await response.json();
+      // Update local storage and state with the new user data
+      localStorage.setItem("user", JSON.stringify(data.user));
+      setUser(data.user);
+      return data;
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      throw error;
+    }
   };
 
   return (

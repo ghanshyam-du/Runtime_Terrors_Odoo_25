@@ -49,10 +49,15 @@ export const login = async (req, res) => {
         email: user.email,
         name: user.name,
         location: user.location,
+        profile_photo_url: user.profile_photo_url,
+        availability: user.availability,
+        skills_offered: user.skills_offered,
+        skills_wanted: user.skills_wanted,
+        visibility: user.visibility,
       },
     });
   } catch (err) {
-    console.error(err);
+    console.error("❌ Login error:", err);
     res.status(500).json({ error: "Server error during login" });
   }
 };
@@ -80,26 +85,19 @@ export const updateProfile = async (req, res) => {
       user.visibility = profilePublic === "true" || profilePublic === true;
     }
 
-    // ✅ Handle arrays from FormData (multi-fields or single strings)
-    if (skillsOffered !== undefined) {
-      user.skills_offered = Array.isArray(skillsOffered)
-        ? skillsOffered
-        : [skillsOffered];
-    }
+    // ✅ Convert to arrays (handle both string and array formats)
+    const toArray = (field) =>
+      field === undefined ? undefined : Array.isArray(field) ? field : [field];
 
-    if (skillsWanted !== undefined) {
-      user.skills_wanted = Array.isArray(skillsWanted)
-        ? skillsWanted
-        : [skillsWanted];
-    }
+    const offeredArray = toArray(skillsOffered);
+    const wantedArray = toArray(skillsWanted);
+    const availabilityArray = toArray(availability);
 
-    if (availability !== undefined) {
-      user.availability = Array.isArray(availability)
-        ? availability
-        : [availability];
-    }
+    if (offeredArray !== undefined) user.skills_offered = offeredArray;
+    if (wantedArray !== undefined) user.skills_wanted = wantedArray;
+    if (availabilityArray !== undefined) user.availability = availabilityArray;
 
-    // ✅ Optional: Handle profile picture upload
+    // ✅ Handle profile picture upload
     if (req.file) {
       const result = await new Promise((resolve, reject) => {
         const upload = cloudinary.uploader.upload_stream(
@@ -120,7 +118,6 @@ export const updateProfile = async (req, res) => {
 
     await user.save();
 
-    // ✅ Match structure of login/signup responses
     return res.json({
       message: "Profile updated",
       user: {

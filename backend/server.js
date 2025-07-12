@@ -4,6 +4,7 @@ import cors from "cors";
 import sequelize from "./configs/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import swapRoutes from "./routes/swapRoutes.js";
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 // Routes would go here
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/swaps", swapRoutes);
 
 const PORT = process.env.PORT || 5000;
 

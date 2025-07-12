@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 
-export default function SwapRequestDialog({ 
-  isOpen, 
-  onClose, 
-  profileUser, 
-  currentUser, 
-  onSendRequest 
+export default function SwapRequestDialog({
+  isOpen,
+  onClose,
+  profileUser,
+  currentUser,
+  onSendRequest,
 }) {
   const [swapMessage, setSwapMessage] = useState("");
   const [selectedOfferedSkill, setSelectedOfferedSkill] = useState("");
@@ -19,13 +19,15 @@ export default function SwapRequestDialog({
       requesterName: currentUser.name,
       targetId: profileUser.id,
       targetName: profileUser.name,
-      message: swapMessage || Hi ${profileUser.name}, I'd like to exchange skills with you!,
+      message:
+        swapMessage ||
+        `Hi ${profileUser.name}, I'd like to exchange skills with you!`,
       offeredSkill: selectedOfferedSkill,
       wantedSkill: selectedWantedSkill,
     };
 
     onSendRequest(swapData);
-    
+
     // Reset form
     setSwapMessage("");
     setSelectedOfferedSkill("");
@@ -47,7 +49,7 @@ export default function SwapRequestDialog({
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Request Skill Swap with {profileUser.name}
         </h3>
-        
+
         {/* Choose Your Offered Skill */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -95,7 +97,7 @@ export default function SwapRequestDialog({
             value={swapMessage}
             onChange={(e) => setSwapMessage(e.target.value)}
             rows={3}
-            placeholder={Hi ${profileUser.name}, I'd like to exchange skills with you!}
+            placeholder={`Hi ${profileUser.name}, I'd like to exchange skills with you!`}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
           />
         </div>

@@ -6,6 +6,7 @@ import { useSwap } from "@/contexts/SwapContext";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { fetchUserById } from "@/services/userService";
 
 import SwapRequestDialog from "@/components/SwapRequestDialog";
 export default function UserProfile() {
@@ -18,21 +19,12 @@ export default function UserProfile() {
   const [successMessage, setSuccessMessage] = useState("");
   const [showSwapModal, setShowSwapModal] = useState(false);
 
+  // ...
   useEffect(() => {
-    const loadUserProfile = () => {
+    const loadUserProfile = async () => {
       try {
-        const savedUsers = JSON.parse(localStorage.getItem("users") || "[]");
-        const user = savedUsers.find(
-          (u) => u.id === id && u.profilePublic !== false
-        );
-
-        if (user) {
-          // Remove sensitive information
-          const { password, ...safeUser } = user;
-          setProfileUser(safeUser);
-        } else {
-          setProfileUser(null);
-        }
+        const user = await fetchUserById(id);
+        setProfileUser(user);
       } catch (err) {
         console.error("Error loading user profile:", err);
         setProfileUser(null);
@@ -182,7 +174,7 @@ export default function UserProfile() {
                       src={profileUser.profile_photo_url}
                       alt={profileUser.name || "User"}
                       fill
-                      style={{ objectFit: 'cover' }}
+                      style={{ objectFit: "cover" }}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-blue-600">

@@ -2,6 +2,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
+import cloudinary from '../configs/cloudinary.js';
 
 export const signup = async (req, res) => {
   const { name, email, password, location } = req.body;
@@ -53,5 +54,92 @@ export const login = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error during login" });
+  }
+};
+
+
+
+
+export const updateProfile = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const {
+      name,
+      location,
+      profilePublic,
+      skillsOffered,
+      skillsWanted,
+      availability,
+    } = req.body;
+
+    // ✅ Basic fields
+    if (name !== undefined) user.name = name;
+    if (location !== undefined) user.location = location;
+    if (profilePublic !== undefined) {
+      user.visibility = profilePublic === 'true' || profilePublic === true;
+    }
+
+    // ✅ Handle arrays from FormData (multi-fields or single strings)
+    if (skillsOffered !== undefined) {
+      user.skills_offered = Array.isArray(skillsOffered)
+        ? skillsOffered
+        : [skillsOffered];
+    }
+
+    if (skillsWanted !== undefined) {
+      user.skills_wanted = Array.isArray(skillsWanted)
+        ? skillsWanted
+        : [skillsWanted];
+    }
+
+    if (availability !== undefined) {
+      user.availability = Array.isArray(availability)
+        ? availability
+        : [availability];
+    }
+
+    // ✅ Optional: Handle profile picture upload
+    if (req.file) {
+      const result = await new Promise((resolve, reject) => {
+        const upload = cloudinary.uploader.upload_stream(
+          {
+            folder: 'skill_swap_profile_pics',
+            transformation: [{ width: 300, height: 300, crop: 'limit' }],
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        upload.end(req.file.buffer);
+      });
+
+      user.profile_photo_url = result.secure_url;
+    }
+
+    await user.save();
+
+    // ✅ Match structure of login/signup responses
+    return res.json({
+      message: 'Profile updated',
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        location: user.location,
+        profile_photo_url: user.profile_photo_url,
+        availability: user.availability,
+        skills_offered: user.skills_offered,
+        skills_wanted: user.skills_wanted,
+        visibility: user.visibility,
+      },
+    });
+  } catch (err) {
+    console.error('❌ updateProfile error:', err);
+    return res.status(500).json({ error: 'Server error during profile update' });
   }
 };

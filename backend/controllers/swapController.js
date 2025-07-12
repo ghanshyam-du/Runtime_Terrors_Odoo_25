@@ -2,9 +2,18 @@ import SwapRequest from "../models/swapRequestModel.js";
 
 export const createSwapRequest = async (req, res) => {
   try {
-    const { requesterId, requesterName, targetId, targetName, message } = req.body;
+    const {
+      requesterId,
+      requesterName,
+      targetId,
+      targetName,
+      offeredSkill,
+      requestedSkill,
+      message,
+    } = req.body;
 
-    if (!requesterId || !targetId) {
+    // 🔒 Basic validation
+    if (!requesterId || !targetId || !offeredSkill || !requestedSkill) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -13,7 +22,10 @@ export const createSwapRequest = async (req, res) => {
       requesterName,
       targetId,
       targetName,
+      offeredSkill,
+      requestedSkill,
       message,
+      status: "pending", // default
     });
 
     res.status(201).json({ message: "Swap request sent", request });
@@ -29,6 +41,7 @@ export const getSwapRequestsForUser = async (req, res) => {
 
     const requests = await SwapRequest.findAll({
       where: { targetId: userId },
+      order: [["createdAt", "DESC"]],
     });
 
     res.json({ requests });

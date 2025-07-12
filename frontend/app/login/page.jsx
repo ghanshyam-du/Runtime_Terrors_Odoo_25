@@ -23,6 +23,16 @@ export default function Login() {
     }));
   };
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await localStorage.getItem("user");
+      if (user) {
+        router.push("/dashboard");
+      }
+    };
+    fetchUser();
+  }, []);
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');

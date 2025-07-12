@@ -1,4 +1,3 @@
-// models/user.js
 import { DataTypes } from "sequelize";
 import sequelize from "../configs/db.js";
 
@@ -11,6 +10,11 @@ const User = sequelize.define(
     location: DataTypes.STRING,
     profile_photo_url: DataTypes.STRING,
     availability: DataTypes.ARRAY(DataTypes.STRING),
+
+    // ✅ New Fields
+    skills_offered: DataTypes.ARRAY(DataTypes.STRING),
+    skills_wanted: DataTypes.ARRAY(DataTypes.STRING),
+
     visibility: { type: DataTypes.BOOLEAN, defaultValue: true },
     is_admin: { type: DataTypes.BOOLEAN, defaultValue: false },
     is_banned: { type: DataTypes.BOOLEAN, defaultValue: false },

@@ -1,5 +1,4 @@
 'use client';
-import axios from "axios"; 
 
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -25,39 +24,21 @@ export default function Login() {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError('');
-  setLoading(true);
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
-  try {
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-      email: formData.email,
-      password: formData.password
-    });
+    const result = await login(formData.email, formData.password);
 
-    if (response.status === 200) {
-      const { token, user } = response.data;
-
-      // Store token locally (optional)
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-
-      console.log('Login successful:', user);
-
-      // Redirect based on role if needed later
-      router.push('/dashboard'); // or `/profile` or `/user/dashboard`
-    }
-  } catch (err) {
-    if (err.response && err.response.data && err.response.data.error) {
-      setError(err.response.data.error);
+    if (result.success) {
+      // Redirect user after successful login
+      router.push('/dashboard');
     } else {
-      setError('An error occurred. Please try again.');
+      setError(result.error || 'Login failed');
     }
-  } finally {
-    setLoading(false);
-  }
-};
 
+    setLoading(false);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">

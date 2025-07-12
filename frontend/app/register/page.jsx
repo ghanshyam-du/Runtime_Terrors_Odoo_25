@@ -1,4 +1,3 @@
-
 "use client";
 import axios from "axios";
 
@@ -44,28 +43,17 @@ export default function Register() {
 
     setLoading(true);
 
-    try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/signup`, {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        location: formData.location,
-      });
+    const result = await register(
+      formData
+    );
 
-      // Redirect on successful signup
-      if (response.status === 201) {
-        console.log("Registration successful:", response.data);
-        router.push("/login"); // Or go to profile/dashboard after login
-      }
-    } catch (err) {
-      if (err.response && err.response.data && err.response.data.error) {
-        setError(err.response.data.error);
-      } else {
-        setError("An error occurred. Please try again.");
-      }
-    } finally {
-      setLoading(false);
+    if (result.success) {
+      // Redirect user after successful login
+      router.push("/login");
+    } else {
+      setError(result.error || "Login failed");
     }
+    setLoading(false);
   };
 
   return (

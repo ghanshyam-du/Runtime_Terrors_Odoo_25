@@ -30,13 +30,13 @@ export default function Register() {
   useEffect(() => {
     const fetchUser = async () => {
       const user = await localStorage.getItem("user");
-      console.log(user)
       if (user) {
         router.push("/dashboard");
       }
     };
     fetchUser();
-  },);
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -53,9 +53,7 @@ export default function Register() {
 
     setLoading(true);
 
-    const result = await register(
-      formData
-    );
+    const result = await register(formData);
 
     if (result.success) {
       // Redirect user after successful login

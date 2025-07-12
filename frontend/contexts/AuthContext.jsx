@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 
 const AuthContext = createContext();
 
@@ -9,88 +10,88 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session
     const savedUser = localStorage.getItem('user');
-    if (savedUser) {
+    const token = localStorage.getItem('token');
+
+    if (savedUser && token) {
       setUser(JSON.parse(savedUser));
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     }
+
     setLoading(false);
   }, []);
 
   const login = async (email, password) => {
-    // Simulate API call
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const user = users.find(u => u.email === email && u.password === password);
-    
-    if (user) {
-      const userSession = { ...user };
-      delete userSession.password;
-      setUser(userSession);
-      localStorage.setItem('user', JSON.stringify(userSession));
-      return { success: true };
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+        email,
+        password,
+      });
+
+      if (response.status === 200) {
+        const { token, user } = response.data;
+
+        // Store in localStorage
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+
+        // Set default axios header
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+        setUser(user);
+        return { success: true };
+      }
+    } catch (err) {
+      return {
+        success: false,
+        error: err.response?.data?.error || 'Login failed',
+      };
     }
-    return { success: false, error: 'Invalid credentials' };
   };
 
   const register = async (userData) => {
-    // Simulate API call
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    
-    if (users.find(u => u.email === userData.email)) {
-      return { success: false, error: 'Email already exists' };
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/signup`, userData);
+      if (response.status === 201) {
+        return { success: true };
+      }
+    } catch (err) {
+      return {
+        success: false,
+        error: err.response?.data?.error || 'Registration failed',
+      };
     }
-
-    const newUser = {
-      id: Date.now().toString(),
-      ...userData,
-      skillsOffered: [],
-      skillsWanted: [],
-      availability: [],
-      profilePublic: true,
-      isAdmin: userData.email === 'admin@skillswap.com',
-      createdAt: new Date().toISOString()
-    };
-
-    users.push(newUser);
-    localStorage.setItem('users', JSON.stringify(users));
-
-    const userSession = { ...newUser };
-    delete userSession.password;
-    setUser(userSession);
-    localStorage.setItem('user', JSON.stringify(userSession));
-    
-    return { success: true };
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    delete axios.defaults.headers.common['Authorization'];
   };
 
   const updateProfile = (updatedData) => {
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const userIndex = users.findIndex(u => u.id === user.id);
-    
-    if (userIndex !== -1) {
-      users[userIndex] = { ...users[userIndex], ...updatedData };
-      localStorage.setItem('users', JSON.stringify(users));
-      
-      const updatedUser = { ...users[userIndex] };
-      delete updatedUser.password;
-      setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-    }
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) return;
+
+    const currentUser = JSON.parse(storedUser);
+    const updatedUser = { ...currentUser, ...updatedData };
+
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      loading,
-      login,
-      register,
-      logout,
-      updateProfile
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        logout,
+        updateProfile,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

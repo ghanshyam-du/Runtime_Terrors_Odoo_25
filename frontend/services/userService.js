@@ -13,6 +13,8 @@ export const fetchPublicUsers = async () => {
       }
     );
 
+    console.log(response.data);
+
     return response.data.users; // Array of user objects
   } catch (error) {
     console.error("❌ Failed to fetch public users:", error);

@@ -1,12 +1,21 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
-import { useState } from 'react';
+import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
+  };
 
   return (
     <nav className="bg-white shadow-lg border-b border-gray-200">
@@ -22,31 +31,54 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/browse" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            <Link
+              href="/browse"
+              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+            >
               Browse
             </Link>
-            
+
             {user ? (
               <>
-                <Link href="/dashboard" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                <Link
+                  href="/dashboard"
+                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                >
                   Dashboard
                 </Link>
-                <Link href="/profile" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                <Link
+                  href="/profile"
+                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                >
                   Profile
                 </Link>
                 {user.isAdmin && (
-                  <Link href="/admin" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                  <Link
+                    href="/admin"
+                    className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                  >
                     Admin
                   </Link>
                 )}
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-blue-600 font-semibold text-sm">
-                        {user.name?.charAt(0).toUpperCase()}
-                      </span>
+                    <div className="w-8 h-8 relative rounded-full overflow-hidden bg-gray-100">
+                      {user.profile_photo_url ? (
+                        <Image
+                          src={user.profile_photo_url}
+                          alt={user.name || "User"}
+                          layout="fill"
+                          objectFit="cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-blue-600 font-semibold text-sm">
+                          {user.name?.charAt(0).toUpperCase()}
+                        </div>
+                      )}
                     </div>
-                    <span className="text-gray-700 font-medium">{user.name}</span>
+                    <span className="text-gray-700 font-medium">
+                      {user.name}
+                    </span>
                   </div>
                   <button
                     onClick={logout}
@@ -58,10 +90,16 @@ export default function Navbar() {
               </>
             ) : (
               <div className="flex items-center space-x-4">
-                <Link href="/login" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                <Link
+                  href="/login"
+                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                >
                   Login
                 </Link>
-                <Link href="/register" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                <Link
+                  href="/register"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                >
                   Join Now
                 </Link>
               </div>
@@ -73,8 +111,18 @@ export default function Navbar() {
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
             </svg>
           </button>
         </div>
@@ -83,20 +131,32 @@ export default function Navbar() {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-200">
             <div className="flex flex-col space-y-4">
-              <Link href="/browse" className="text-gray-700 hover:text-blue-600 font-medium">
+              <Link
+                href="/browse"
+                className="text-gray-700 hover:text-blue-600 font-medium"
+              >
                 Browse
               </Link>
-              
+
               {user ? (
                 <>
-                  <Link href="/dashboard" className="text-gray-700 hover:text-blue-600 font-medium">
+                  <Link
+                    href="/dashboard"
+                    className="text-gray-700 hover:text-blue-600 font-medium"
+                  >
                     Dashboard
                   </Link>
-                  <Link href="/profile" className="text-gray-700 hover:text-blue-600 font-medium">
+                  <Link
+                    href="/profile"
+                    className="text-gray-700 hover:text-blue-600 font-medium"
+                  >
                     Profile
                   </Link>
                   {user.isAdmin && (
-                    <Link href="/admin" className="text-gray-700 hover:text-blue-600 font-medium">
+                    <Link
+                      href="/admin"
+                      className="text-gray-700 hover:text-blue-600 font-medium"
+                    >
                       Admin
                     </Link>
                   )}
@@ -106,10 +166,12 @@ export default function Navbar() {
                         {user.name?.charAt(0).toUpperCase()}
                       </span>
                     </div>
-                    <span className="text-gray-700 font-medium">{user.name}</span>
+                    <span className="text-gray-700 font-medium">
+                      {user.name}
+                    </span>
                   </div>
                   <button
-                    onClick={logout}
+                    onClick={handleLogout}
                     className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium text-left"
                   >
                     Logout
@@ -117,10 +179,16 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <Link href="/login" className="text-gray-700 hover:text-blue-600 font-medium">
+                  <Link
+                    href="/login"
+                    className="text-gray-700 hover:text-blue-600 font-medium"
+                  >
                     Login
                   </Link>
-                  <Link href="/register" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium text-center">
+                  <Link
+                    href="/register"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium text-center"
+                  >
                     Join Now
                   </Link>
                 </>

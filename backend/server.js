@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import sequelize from "./configs/db.js";
 import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ app.use(express.json());
 
 // Routes would go here
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 
 const PORT = process.env.PORT || 5000;
 

@@ -3,7 +3,9 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 
+
 const AuthContext = createContext();
+
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -74,6 +76,7 @@ export function AuthProvider({ children }) {
     setUser(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+    
     delete axios.defaults.headers.common["Authorization"];
   };
 

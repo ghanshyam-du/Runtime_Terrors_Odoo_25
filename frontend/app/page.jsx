@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Users2 } from "lucide-react";
+import { Users2 , UploadCloud, Clock } from "lucide-react";
 
 export default function Home() {
   return (
@@ -34,18 +34,50 @@ export default function Home() {
 
           {/* Hero Image Placeholder */}
           <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-12 mb-16">
-            <div className="flex justify-center items-center h-64">
+            
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-800 mb-4">Empower Your Growth</h2>
+              <p className="text-gray-700 text-lg max-w-2xl mx-auto">
+                Discover, share, and grow with a community that values skill exchange and lifelong learning.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12 justify-items-center">
+              {/* Icon 1: Learn from others */}
               <div className="text-center">
-                {/* Enlarged and styled icon container */}
-                <div className="w-32 h-32 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <div className="w-32 h-32 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <Users2 className="text-white w-16 h-16" />
                 </div>
-                <p className="text-gray-600 text-lg">
-                  Collaborative Learning Illustration
+                <h4 className="text-lg font-semibold text-gray-800 mb-2">Connect & Learn</h4>
+                <p className="text-gray-600 text-sm max-w-xs mx-auto">
+                  Match with skilled individuals ready to share knowledge and collaborate.
+                </p>
+              </div>
+
+              {/* Icon 2: Share your skills */}
+              <div className="text-center">
+                <div className="w-32 h-32 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <UploadCloud className="text-white w-16 h-16" />
+                </div>
+                <h4 className="text-lg font-semibold text-gray-800 mb-2">Share Your Expertise</h4>
+                <p className="text-gray-600 text-sm max-w-xs mx-auto">
+                  Offer your unique talents and help others grow while strengthening your own skills.
+                </p>
+              </div>
+
+              {/* Icon 3: Flexible scheduling */}
+              <div className="text-center">
+                <div className="w-32 h-32 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Clock className="text-white w-16 h-16" />
+                </div>
+                <h4 className="text-lg font-semibold text-gray-800 mb-2">Flexible Availability</h4>
+                <p className="text-gray-600 text-sm max-w-xs mx-auto">
+                  Learn and teach on your schedule — mornings, weekends, or whenever you're free.
                 </p>
               </div>
             </div>
           </div>
+
         </div>
       </section>
 

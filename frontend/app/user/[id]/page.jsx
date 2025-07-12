@@ -6,8 +6,8 @@ import { useSwap } from "@/contexts/SwapContext";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { fetchUserById } from "@/services/userService";
 
+import SwapRequestDialog from "@/components/SwapRequestDialog";
 export default function UserProfile() {
   const { user: currentUser } = useAuth();
   const { createSwapRequest } = useSwap();
@@ -17,13 +17,22 @@ export default function UserProfile() {
   const [loading, setLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState("");
   const [showSwapModal, setShowSwapModal] = useState(false);
-  const [swapMessage, setSwapMessage] = useState("");
 
   useEffect(() => {
-    const loadUserProfile = async () => {
+    const loadUserProfile = () => {
       try {
-        const user = await fetchUserById(id);
-        setProfileUser(user);
+        const savedUsers = JSON.parse(localStorage.getItem("users") || "[]");
+        const user = savedUsers.find(
+          (u) => u.id === id && u.profilePublic !== false
+        );
+
+        if (user) {
+          // Remove sensitive information
+          const { password, ...safeUser } = user;
+          setProfileUser(safeUser);
+        } else {
+          setProfileUser(null);
+        }
       } catch (err) {
         console.error("Error loading user profile:", err);
         setProfileUser(null);
@@ -37,7 +46,7 @@ export default function UserProfile() {
     }
   }, [id]);
 
-  const handleSwapRequest = () => {
+  const handleSwapRequest = (swapData) => {
     if (!currentUser) {
       alert("Please login to request a swap");
       return;
@@ -48,20 +57,9 @@ export default function UserProfile() {
       return;
     }
 
-    const swapData = {
-      requesterId: currentUser.id,
-      requesterName: currentUser.name,
-      targetId: profileUser.id,
-      targetName: profileUser.name,
-      message:
-        swapMessage ||
-        `Hi ${profileUser.name}, I'd like to exchange skills with you!`,
-    };
-
     createSwapRequest(swapData);
     setSuccessMessage(`Swap request sent to ${profileUser.name}!`);
     setShowSwapModal(false);
-    setSwapMessage("");
     setTimeout(() => setSuccessMessage(""), 3000);
   };
 
@@ -184,7 +182,7 @@ export default function UserProfile() {
                       src={profileUser.profile_photo_url}
                       alt={profileUser.name || "User"}
                       fill
-                      style={{ objectFit: "cover" }}
+                      style={{ objectFit: 'cover' }}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-blue-600">
@@ -331,45 +329,14 @@ export default function UserProfile() {
           </div>
         </div>
 
-        {/* Swap Request Modal */}
-        {showSwapModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-md w-full p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Request Skill Swap with {profileUser.name}
-              </h3>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Message (optional)
-                </label>
-                <textarea
-                  value={swapMessage}
-                  onChange={(e) => setSwapMessage(e.target.value)}
-                  rows={3}
-                  placeholder={`Hi ${profileUser.name}, I'd like to exchange skills with you!`}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              <div className="flex space-x-3">
-                <button
-                  onClick={handleSwapRequest}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
-                >
-                  Send Request
-                </button>
-                <button
-                  onClick={() => {
-                    setShowSwapModal(false);
-                    setSwapMessage("");
-                  }}
-                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-lg font-medium transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Swap Request Dialog */}
+        <SwapRequestDialog
+          isOpen={showSwapModal}
+          onClose={() => setShowSwapModal(false)}
+          profileUser={profileUser}
+          currentUser={currentUser}
+          onSendRequest={handleSwapRequest}
+        />
       </div>
     </div>
   );

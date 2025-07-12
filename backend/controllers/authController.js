@@ -54,6 +54,7 @@ export const login = async (req, res) => {
         skills_offered: user.skills_offered,
         skills_wanted: user.skills_wanted,
         visibility: user.visibility,
+        isAdmin: user.is_admin,
       },
     });
   } catch (err) {

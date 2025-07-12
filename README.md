@@ -200,10 +200,9 @@ skill-swap-platform/
 
 ## 🎯 Hackathon Details
 
-**Event**: \[Hackathon Name]
-**Team**: \[Your Team Name]
-**Track**: \[Track Name]
-**Demo**: \[Demo URL if available]
+**Event**: \Odoo Hackathon]
+**Team**: \[Runtime error]
+
 
 ### 🏆 Achievements
 

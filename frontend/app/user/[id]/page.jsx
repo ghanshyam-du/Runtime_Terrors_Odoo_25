@@ -6,6 +6,7 @@ import { useSwap } from "@/contexts/SwapContext";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { fetchUserById } from "@/services/userService";
 
 export default function UserProfile() {
   const { user: currentUser } = useAuth();
@@ -19,20 +20,10 @@ export default function UserProfile() {
   const [swapMessage, setSwapMessage] = useState("");
 
   useEffect(() => {
-    const loadUserProfile = () => {
+    const loadUserProfile = async () => {
       try {
-        const savedUsers = JSON.parse(localStorage.getItem("users") || "[]");
-        const user = savedUsers.find(
-          (u) => u.id === id && u.profilePublic !== false
-        );
-
-        if (user) {
-          // Remove sensitive information
-          const { password, ...safeUser } = user;
-          setProfileUser(safeUser);
-        } else {
-          setProfileUser(null);
-        }
+        const user = await fetchUserById(id);
+        setProfileUser(user);
       } catch (err) {
         console.error("Error loading user profile:", err);
         setProfileUser(null);
@@ -192,8 +183,8 @@ export default function UserProfile() {
                     <Image
                       src={profileUser.profile_photo_url}
                       alt={profileUser.name || "User"}
-                      layout="fill"
-                      objectFit="cover"
+                      fill
+                      style={{ objectFit: "cover" }}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-blue-600">
@@ -230,14 +221,14 @@ export default function UserProfile() {
 
           <div className="p-6 space-y-8">
             {/* Skills Offered */}
-            {profileUser.skillsOffered &&
-              profileUser.skillsOffered.length > 0 && (
+            {profileUser.skills_offered &&
+              profileUser.skills_offered.length > 0 && (
                 <section>
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">
                     Skills I Can Offer
                   </h2>
                   <div className="flex flex-wrap gap-2">
-                    {profileUser.skillsOffered.map((skill) => (
+                    {profileUser.skills_offered.map((skill) => (
                       <span
                         key={skill}
                         className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
@@ -250,14 +241,14 @@ export default function UserProfile() {
               )}
 
             {/* Skills Wanted */}
-            {profileUser.skillsWanted &&
-              profileUser.skillsWanted.length > 0 && (
+            {profileUser.skills_wanted &&
+              profileUser.skills_wanted.length > 0 && (
                 <section>
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">
                     Skills I Want to Learn
                   </h2>
                   <div className="flex flex-wrap gap-2">
-                    {profileUser.skillsWanted.map((skill) => (
+                    {profileUser.skills_wanted.map((skill) => (
                       <span
                         key={skill}
                         className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800"
@@ -354,7 +345,7 @@ export default function UserProfile() {
                 <textarea
                   value={swapMessage}
                   onChange={(e) => setSwapMessage(e.target.value)}
-                  rows="3"
+                  rows={3}
                   placeholder={`Hi ${profileUser.name}, I'd like to exchange skills with you!`}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                 />

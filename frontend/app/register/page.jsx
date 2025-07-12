@@ -43,9 +43,7 @@ export default function Register() {
 
     setLoading(true);
 
-    const result = await register(
-      formData
-    );
+    const result = await register(formData);
 
     if (result.success) {
       // Redirect user after successful login

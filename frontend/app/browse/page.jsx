@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSwap } from "@/contexts/SwapContext";
-import { fetchPublicUsers } from "@/services/userService";
-import Image from "next/image";
+import Link from "next/link";
 
 export default function Browse() {
   const { user } = useAuth();
@@ -16,22 +15,15 @@ export default function Browse() {
   const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
-    const loadUsers = async () => {
-      try {
-        const users = await fetchPublicUsers();
-        const filtered = users.filter(
-          (u) =>
-            u.id !== user?.id &&
-            (u.skills_offered?.length > 0 || u.skills_wanted?.length > 0)
-        );
-        setUsers(filtered);
-        setFilteredUsers(filtered);
-      } catch (err) {
-        console.error("Error loading public users:", err);
-      }
-    };
-
-    loadUsers();
+    const savedUsers = JSON.parse(localStorage.getItem("users") || "[]");
+    const publicUsers = savedUsers.filter(
+      (u) =>
+        u.profilePublic !== false &&
+        u.id !== user?.id &&
+        (u.skillsOffered?.length > 0 || u.skillsWanted?.length > 0)
+    );
+    setUsers(publicUsers);
+    setFilteredUsers(publicUsers);
   }, [user]);
 
   useEffect(() => {
@@ -39,10 +31,7 @@ export default function Browse() {
 
     if (searchTerm) {
       filtered = filtered.filter((u) => {
-        const skills = [
-          ...(u.skills_offered || []),
-          ...(u.skills_wanted || []),
-        ];
+        const skills = [...(u.skillsOffered || []), ...(u.skillsWanted || [])];
         return (
           skills.some((skill) =>
             skill.toLowerCase().includes(searchTerm.toLowerCase())
@@ -169,25 +158,13 @@ export default function Browse() {
             </div>
           ) : (
             filteredUsers.map((targetUser) => (
-              <div
-                key={targetUser.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-              >
-                <div className="p-6">
+              <Link key={targetUser.id} href={`/user/${targetUser.id}`}>
+                <div className="p-6 cursor-pointer">
                   <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 relative rounded-full overflow-hidden bg-gray-100">
-                      {targetUser.profile_photo_url ? (
-                        <Image
-                          src={targetUser.profile_photo_url}
-                          alt={targetUser.name || "User"}
-                          layout="fill"
-                          objectFit="cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-blue-600 font-semibold">
-                          {targetUser.name?.charAt(0).toUpperCase()}
-                        </div>
-                      )}
+                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                      <span className="text-blue-600 font-semibold">
+                        {targetUser.name?.charAt(0).toUpperCase()}
+                      </span>
                     </div>
                     <div className="ml-3">
                       <h3 className="text-lg font-semibold text-gray-900">
@@ -202,26 +179,24 @@ export default function Browse() {
                   </div>
 
                   {/* Skills Offered */}
-                  {targetUser.skills_offered &&
-                    targetUser.skills_offered.length > 0 && (
+                  {targetUser.skillsOffered &&
+                    targetUser.skillsOffered.length > 0 && (
                       <div className="mb-4">
                         <h4 className="text-sm font-medium text-gray-700 mb-2">
                           Can teach:
                         </h4>
                         <div className="flex flex-wrap gap-1">
-                          {targetUser.skills_offered
-                            .slice(0, 3)
-                            .map((skill) => (
-                              <span
-                                key={skill}
-                                className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full"
-                              >
-                                {skill}
-                              </span>
-                            ))}
-                          {targetUser.skills_offered.length > 3 && (
+                          {targetUser.skillsOffered.slice(0, 3).map((skill) => (
+                            <span
+                              key={skill}
+                              className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                          {targetUser.skillsOffered.length > 3 && (
                             <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
-                              +{targetUser.skills_offered.length - 3} more
+                              +{targetUser.skillsOffered.length - 3} more
                             </span>
                           )}
                         </div>
@@ -229,14 +204,14 @@ export default function Browse() {
                     )}
 
                   {/* Skills Wanted */}
-                  {targetUser.skills_wanted &&
-                    targetUser.skills_wanted.length > 0 && (
+                  {targetUser.skillsWanted &&
+                    targetUser.skillsWanted.length > 0 && (
                       <div className="mb-4">
                         <h4 className="text-sm font-medium text-gray-700 mb-2">
                           Wants to learn:
                         </h4>
                         <div className="flex flex-wrap gap-1">
-                          {targetUser.skills_wanted.slice(0, 3).map((skill) => (
+                          {targetUser.skillsWanted.slice(0, 3).map((skill) => (
                             <span
                               key={skill}
                               className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full"
@@ -244,9 +219,9 @@ export default function Browse() {
                               {skill}
                             </span>
                           ))}
-                          {targetUser.skills_wanted.length > 3 && (
+                          {targetUser.skillsWanted.length > 3 && (
                             <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
-                              +{targetUser.skills_wanted.length - 3} more
+                              +{targetUser.skillsWanted.length - 3} more
                             </span>
                           )}
                         </div>
@@ -273,15 +248,17 @@ export default function Browse() {
                       </div>
                     )}
 
-                  <button
-                    onClick={() => handleSwapRequest(targetUser)}
-                    disabled={!user}
-                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-2 px-4 rounded-lg font-medium transition-colors"
+                  <div
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleSwapRequest(targetUser);
+                    }}
+                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-2 px-4 rounded-lg font-medium transition-colors text-center cursor-pointer"
                   >
                     {user ? "Request Swap" : "Login to Request"}
-                  </button>
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))
           )}
         </div>

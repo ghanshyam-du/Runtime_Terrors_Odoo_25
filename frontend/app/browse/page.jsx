@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSwap } from '@/contexts/SwapContext';
+import { fetchPublicUsers } from "@/services/userService";
 
 export default function Browse() {
   const { user } = useAuth();
@@ -13,16 +14,27 @@ export default function Browse() {
   const [selectedAvailability, setSelectedAvailability] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  useEffect(() => {
-    const savedUsers = JSON.parse(localStorage.getItem('users') || '[]');
-    const publicUsers = savedUsers.filter(u => 
-      u.profilePublic !== false && 
-      u.id !== user?.id &&
-      (u.skillsOffered?.length > 0 || u.skillsWanted?.length > 0)
-    );
-    setUsers(publicUsers);
-    setFilteredUsers(publicUsers);
-  }, [user]);
+
+
+  
+
+useEffect(() => {
+  const loadUsers = async () => {
+    try {
+      const users = await fetchPublicUsers();
+      const filtered = users.filter(u =>
+        u.id !== user?.id &&
+        (u.skills_offered?.length > 0 || u.skills_wanted?.length > 0)
+      );
+      setUsers(filtered);
+      setFilteredUsers(filtered);
+    } catch (err) {
+      console.error("Error loading public users:", err);
+    }
+  };
+
+  loadUsers();
+}, [user]);
 
   useEffect(() => {
     let filtered = users;
